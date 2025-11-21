@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Light NFT Marketplace</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    header {
+        background: #fff;
+        padding: 20px 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    header h1 { font-size: 28px; }
+    nav a {
+        color: #333;
+        text-decoration: none;
+        margin-left: 20px;
+        font-size: 18px;
+        cursor: pointer;
+    }
+    nav a:hover { text-decoration: underline; }
+
+    .container {
+        padding: 40px;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .mint-box {
+        background: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 500px;
+        margin: auto;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 10px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background: #4CAF50;
+        color: white;
+        transition: 0.3s;
+    }
+
+    button:hover { background: #45a049; }
+
+    .grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .card {
+        background: #fff;
+        border-radius: 10px;
+        width: 250px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: 0.3s;
+    }
+
+    .card img {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .card-content {
+        padding: 15px;
+    }
+
+    .owner {
+        font-size: 14px;
+        color: #555;
+    }
+
+    .buy-btn {
+        margin-top: 10px;
+        background: #007bff;
+    }
+    .buy-btn:hover { background: #0056b3; }
+
+    h2 { text-align: center; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>NFT Marketplace</h1>
+    <nav>
+        <a onclick="showMint()">Mint NFT</a>
+        <a onclick="showMarket()">Marketplace</a>
+        <a onclick="resetMarketplace()">Reset</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <!-- Mint Section -->
+    <div id="mintSection">
+        <h2>Mint Your NFT</h2>
+        <div class="mint-box">
+            <input type="text" id="tokenURI" placeholder="Enter image URL (HTTPS)">
+            <button onclick="mintNFT()">Mint NFT</button>
+            <p id="status"></p>
+        </div>
+    </div>
+
+    <!-- Marketplace Section -->
+    <div id="marketSection" style="display:none;">
+        <h2>Marketplace</h2>
+        <div id="marketGrid" class="grid">
+            <!-- NFTs will appear here -->
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ===== Constants =====
+const KEY = "NFT_MARKET";
+const USERS = ["Alice", "Bob", "Charlie"];
+
+// ===== Functions =====
+
+// Clear marketplace (for testing)
+function resetMarketplace(){
+    localStorage.removeItem(KEY);
+    alert("Marketplace reset! No NFTs now.");
+    showMint();
+}
+
+// Mint NFT
+function mintNFT(){
+    const uri = document.getElementById("tokenURI").value.trim();
+    if(!uri){
+        alert("Please enter a valid image URL (https://)");
+        return;
+    }
+
+    // Check if URL is HTTPS
+    if(!uri.startsWith("https://")){
+        alert("Please enter a valid HTTPS image URL");
+        return;
+    }
+
+    // Load NFTs
+    let nfts = JSON.parse(localStorage.getItem(KEY) || "[]");
+
+    // Create new NFT
+    const newNFT = {
+        id: nfts.length + 1,
+        uri: uri,
+        owner: USERS[0],
+        price: Math.floor(Math.random()*5)+1
+    };
+
+    nfts.push(newNFT);
+    localStorage.setItem(KEY, JSON.stringify(nfts));
+
+    document.getElementById("status").innerText = "NFT minted successfully!";
+    document.getElementById("tokenURI").value = "";
+
+    showMarket();
+}
+
+// Refresh Marketplace
+function refreshMarket(){
+    const container = document.getElementById("marketGrid");
+    const nfts = JSON.parse(localStorage.getItem(KEY) || "[]");
+    container.innerHTML = "";
+
+    if(nfts.length === 0){
+        container.innerHTML = "<p style='text-align:center; width:100%'>No NFTs minted yet.</p>";
+        return;
+    }
+
+    nfts.forEach(nft=>{
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+            <img src="${nft.uri}" alt="NFT Image">
+            <div class="card-content">
+                <h3>NFT #${nft.id}</h3>
+                <p class="owner">Owner: ${nft.owner}</p>
+                <p><b>Price:</b> ${nft.price} ETH</p>
+                <button class="buy-btn" onclick="buyNFT(${nft.id})">Buy</button>
+            </div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Buy NFT
+function buyNFT(id){
+    let nfts = JSON.parse(localStorage.getItem(KEY) || "[]");
+    let nft = nfts.find(n=>n.id===id);
+    let buyer = USERS[Math.floor(Math.random()*USERS.length)];
+    if(buyer === nft.owner) buyer = "Marketplace Buyer";
+
+    nft.owner = buyer;
+    localStorage.setItem(KEY, JSON.stringify(nfts));
+    refreshMarket();
+    alert(`NFT purchased! Now owned by ${buyer}`);
+}
+
+// Toggle Sections
+function showMint(){
+    document.getElementById("mintSection").style.display="block";
+    document.getElementById("marketSection").style.display="none";
+}
+
+function showMarket(){
+    document.getElementById("mintSection").style.display="none";
+    document.getElementById("marketSection").style.display="block";
+    refreshMarket();
+}
+
+// ===== Initial load =====
+refreshMarket();
+
+</script>
+</body>
+</html>
