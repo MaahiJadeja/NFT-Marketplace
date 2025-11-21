@@ -9,5 +9,4 @@
 ### Mint NFT
 ![Mint NFT](screenshots/mint.png)
 
-### Marketplace
-![Marketplace](screenshots/marketplace.png)
+
