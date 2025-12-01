@@ -89,6 +89,21 @@
         margin-top: 20px;
     }
 
+    .img-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 10px;
+        padding: 0px;
+      }
+
+      .img-grid img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      }
+
+
     .card {
         background: #fff;
         border-radius: 10px;
@@ -130,6 +145,7 @@
         <a onclick="showMint()">Mint NFT</a>
         <a onclick="showMarket()">Marketplace</a>
         <a onclick="resetMarketplace()">Reset</a>
+        <a onclick="showBlockchain()">Blockchain</a>
     </nav>
 </header>
 
@@ -152,6 +168,112 @@
             <!-- NFTs will appear here -->
         </div>
     </div>
+
+    <div class="mint-box2">
+          <h3>Smart Contract Overview</h3>
+          <p>
+            Our NFT Marketplace is designed to work with a real blockchain smart
+            contract. We created a fully functional ERC-721 NFT smart contract
+            using Solidity. This contract handles minting of NFTs and storing
+            token metadata on-chain.
+          </p>
+
+          <h3>Smart Contract Code (NFT.sol)</h3>
+          <pre
+            style="
+              background: #eee;
+              padding: 15px;
+              border-radius: 8px;
+              overflow-x: auto;
+            "
+          >
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract NFT is ERC721URIStorage, Ownable {
+    uint256 public tokenCounter;
+
+    constructor() ERC721("ArtNFT", "ART") {}
+
+    function mintNFT(address recipient, string memory tokenURI)
+        public returns (uint256)
+    {
+        uint256 newItemId = tokenCounter;
+        _mint(recipient, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+        tokenCounter++;
+        return newItemId;
+    }
+}
+        </pre
+          >
+
+          <img
+            src="./blockchain/Screenshot 2025-11-19 200325.png"
+            width="1000px"
+          />
+
+          <h3>Deployment Attempt Summary</h3>
+          <ul>
+            <li>Smart contract compiled successfully in Remix.</li>
+            <li>Connected Remix to Ganache (local blockchain).</li>
+            <li>MetaMask imported Ganache accounts.</li>
+            <li>
+              Contract deployment was attempted, but MetaMask balances did not
+              sync.
+            </li>
+            <li>
+              Due to repeated Ganache–MetaMask sync failures, frontend uses
+              simulated blockchain storage.
+            </li>
+            <li>
+              The smart contract remains fully deployable on any EVM chain.
+            </li>
+          </ul>
+
+          <div class="img-grid">
+            <img src="./blockchain/screenshot1.png" />
+            <img src="./blockchain/screenshot2.png" />
+            <img src="./blockchain/screenshot4.png" />
+            <img src="./blockchain/screenshot5.png" />
+            <img src="./blockchain/screenshot6.png" />
+            <img src="./blockchain/screenshot7.png" />
+            <img src="./blockchain/screenshot8.png" />
+            <img src="./blockchain/screenshot9.png" />
+            <img src="./blockchain/screenshot10.png" />
+            <img src="./blockchain/screenshot11.png" />
+          </div>
+
+         
+
+          <h3>Simulated Blockchain Integration</h3>
+          <p>
+            Even though full deployment could not be completed, our project
+            integrates blockchain concepts:
+          </p>
+          <ul>
+            <li>Smart contract written in Solidity (ERC721)</li>
+            <li>Minting logic simulated in JavaScript</li>
+            <li>Owner changes mimic blockchain transfers</li>
+            <li>LocalStorage acts as a “mock blockchain” for demo purposes</li>
+          </ul>
+
+          <h3>Contract Information</h3>
+          <p><b>Contract Name:</b> NFT</p>
+          
+          <p><b>Functions:</b></p>
+          <ul>
+            <li>
+              <code>mintNFT(address recipient, string tokenURI)</code> → mints a
+              new NFT
+            </li>
+            <li>Stores image URL inside token URI</li>
+            <li>Assigns token ID sequentially</li>
+          </ul>
+        </div>
 
 </div>
 
@@ -257,6 +379,12 @@ function showMarket(){
 
 // ===== Initial load =====
 refreshMarket();
+
+    function showBlockchain() {
+        document.getElementById("mintSection").style.display = "none";
+        document.getElementById("marketSection").style.display = "none";
+        document.getElementById("blockchainSection").style.display = "block";
+      }
 
 </script>
 </body>
